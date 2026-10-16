@@ -1,10 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using BudgetApi.Models;
 
 namespace BudgetApi.Dtos.Transactions;
 
 public record UpdateTransactionDto(
     DateTimeOffset? Timestamp,
-    TransactionType? Type,
-    string Description,
-    decimal Amount
+    [Required] TransactionType? Type,
+    [Required, StringLength(200, MinimumLength = 1)] string Description,
+    [Required, Range(0.01, (double)decimal.MaxValue)] decimal Amount
 );

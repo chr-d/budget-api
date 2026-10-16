@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using BlogApi.Errors;
 using BudgetApi.Endpoints;
 using BudgetApi.Services;
 using Scalar.AspNetCore;
@@ -14,6 +15,10 @@ builder.Services.AddSingleton<IReportService, ReportService>();
 
 builder.Services.AddOpenApi();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddValidation();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -21,6 +26,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 var api = app.MapGroup("/api");
 api.MapTransactionEndpoints();
