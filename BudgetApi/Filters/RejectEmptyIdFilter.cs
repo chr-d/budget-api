@@ -1,3 +1,5 @@
+namespace BudgetApi.Filters;
+
 public class RejectEmptyIdFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(

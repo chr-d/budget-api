@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace BlogApi.Errors;
+namespace BudgetApi.Errors;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

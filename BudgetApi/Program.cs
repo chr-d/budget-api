@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
-using BlogApi.Errors;
 using BudgetApi.Endpoints;
+using BudgetApi.Errors;
 using BudgetApi.Services;
 using Scalar.AspNetCore;
 
