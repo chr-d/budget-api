@@ -8,12 +8,42 @@ public static class TransactionEndpoints
 {
     public static RouteGroupBuilder MapTransactionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/transactions").AddEndpointFilter<RejectEmptyIdFilter>();
-        group.MapGet("/", GetAllTransactions);
-        group.MapGet("/{id:Guid}", GetTransactionById);
-        group.MapPost("/", CreateTransaction);
-        group.MapPut("/{id:Guid}", UpdateTransaction);
-        group.MapDelete("/{id:Guid}", DeleteTransaction);
+        var group = app.MapGroup("/transactions")
+            .AddEndpointFilter<RejectEmptyIdFilter>()
+            .WithTags("Transactions");
+        ;
+        group
+            .MapGet("/", GetAllTransactions)
+            .WithName("GetAllTransactions")
+            .WithSummary("Get all transactions")
+            .WithDescription("Returns a list of all transactions.");
+        ;
+        group
+            .MapGet("/{id:Guid}", GetTransactionById)
+            .ProducesValidationProblem()
+            .WithName("GetTransactionById")
+            .WithSummary("Get a transaction by ID")
+            .WithDescription("Returns a single transaction by its ID.");
+        group
+            .MapPost("/", CreateTransaction)
+            .ProducesValidationProblem()
+            .WithName("CreateTransaction")
+            .WithSummary("Create a new transaction")
+            .WithDescription("Creates a new transaction and returns the created transaction.");
+        group
+            .MapPut("/{id:Guid}", UpdateTransaction)
+            .ProducesValidationProblem()
+            .WithName("UpdateTransaction")
+            .WithSummary("Update a transaction")
+            .WithDescription(
+                "Updates an existing transaction by its ID and returns the updated transaction."
+            );
+        group
+            .MapDelete("/{id:Guid}", DeleteTransaction)
+            .ProducesValidationProblem()
+            .WithName("DeleteTransaction")
+            .WithSummary("Delete a transaction")
+            .WithDescription("Deletes an existing transaction by its ID.");
 
         return group;
     }

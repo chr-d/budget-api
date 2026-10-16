@@ -9,8 +9,14 @@ public static class ReportEndpoints
 {
     public static RouteGroupBuilder MapReportEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/reports");
-        group.MapGet("/summary", GetSummaryReport);
+        var group = app.MapGroup("/reports").WithTags("Reports");
+        group
+            .MapGet("/summary", GetSummaryReport)
+            .WithName("GetSummaryReport")
+            .WithSummary("Get a summary report")
+            .WithDescription(
+                "Returns a summary report for the date range with optional type filter."
+            );
 
         return group;
     }
