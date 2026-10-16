@@ -64,8 +64,8 @@ public class TransactionService : ITransactionService
             return Task.FromResult<TransactionResponseDto?>(null);
         }
 
-        transaction.Timestamp = dto.Timestamp ?? transaction.Timestamp;
-        transaction.Type = dto.Type ?? transaction.Type;
+        transaction.Timestamp = dto.Timestamp!.Value;
+        transaction.Type = dto.Type!.Value;
         transaction.Description = dto.Description;
         transaction.Amount = dto.Amount;
         return Task.FromResult<TransactionResponseDto?>(ToDto(transaction));
