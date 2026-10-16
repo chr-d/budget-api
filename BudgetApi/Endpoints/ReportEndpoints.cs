@@ -18,7 +18,7 @@ public static class ReportEndpoints
     private static async Task<Ok<SummaryReportResponseDto>> GetSummaryReport(
         DateOnly start,
         DateOnly end,
-        TransactionType type,
+        TransactionType? type,
         IReportService reportService
     )
     {
