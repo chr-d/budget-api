@@ -1,3 +1,7 @@
 namespace BudgetApi.Models;
 
-public class TransactionType { }
+public enum TransactionType
+{
+    Income,
+    Expense,
+}
