@@ -3,14 +3,38 @@ using BudgetApi.Models;
 
 namespace BudgetApi.Services;
 
-public class ReportService : IReportService
+public class ReportService(ITransactionService transactionService) : IReportService
 {
-    public Task<SummaryReportResponseDto> GetSummaryAsync(
+    private readonly ITransactionService _transactionService = transactionService;
+
+    public async Task<SummaryReportResponseDto> GetSummaryAsync(
         DateOnly start,
         DateOnly end,
         TransactionType? type
     )
     {
-        throw new NotImplementedException();
+        var transactions = await _transactionService.GetInRangeAsync(start, end);
+
+        if (type is not null)
+        {
+            transactions = transactions.Where(t => t.Type == type).ToList();
+        }
+
+        var totalIncome = transactions
+            .Where(t => t.Type == TransactionType.Income)
+            .Sum(t => t.Amount);
+        var totalExpense = transactions
+            .Where(t => t.Type == TransactionType.Expense)
+            .Sum(t => t.Amount);
+
+        return new SummaryReportResponseDto(
+            start,
+            end,
+            type,
+            totalIncome,
+            totalExpense,
+            totalIncome - totalExpense,
+            transactions
+        );
     }
 }

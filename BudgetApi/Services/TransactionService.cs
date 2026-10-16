@@ -1,36 +1,76 @@
+using System.Collections.Concurrent;
 using BudgetApi.Dtos.Transactions;
+using BudgetApi.Models;
 
 namespace BudgetApi.Services;
 
 public class TransactionService : ITransactionService
 {
+    private readonly ConcurrentDictionary<Guid, Transaction> _transactions = new();
+
     public Task<TransactionResponseDto> CreateAsync(CreateTransactionDto dto)
     {
-        throw new NotImplementedException();
+        var transaction = new Transaction
+        {
+            Id = Guid.NewGuid(),
+            Timestamp = dto.Timestamp ?? DateTimeOffset.UtcNow,
+            Type = dto.Type!.Value,
+            Description = dto.Description,
+            Amount = dto.Amount,
+        };
+
+        _transactions[transaction.Id] = transaction;
+        return Task.FromResult(ToDto(transaction));
     }
 
     public Task<bool> DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(_transactions.TryRemove(id, out _));
     }
 
     public Task<IReadOnlyList<TransactionResponseDto>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        IReadOnlyList<TransactionResponseDto> transactions = _transactions
+            .Values.OrderByDescending(t => t.Timestamp)
+            .Select(ToDto)
+            .ToList();
+        return Task.FromResult(transactions);
     }
 
     public Task<TransactionResponseDto?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var transaction = _transactions.TryGetValue(id, out var found) ? ToDto(found) : null;
+        return Task.FromResult(transaction);
     }
 
     public Task<IReadOnlyList<TransactionResponseDto>> GetInRangeAsync(DateOnly start, DateOnly end)
     {
-        throw new NotImplementedException();
+        IReadOnlyList<TransactionResponseDto> transactions = _transactions
+            .Values.Where(t =>
+            {
+                var day = DateOnly.FromDateTime(t.Timestamp.DateTime);
+                return day >= start && day <= end;
+            })
+            .OrderBy(t => t.Timestamp)
+            .Select(ToDto)
+            .ToList();
+        return Task.FromResult(transactions);
     }
 
     public Task<TransactionResponseDto?> UpdateAsync(Guid id, UpdateTransactionDto dto)
     {
-        throw new NotImplementedException();
+        if (!_transactions.TryGetValue(id, out var transaction))
+        {
+            return Task.FromResult<TransactionResponseDto?>(null);
+        }
+
+        transaction.Timestamp = dto.Timestamp ?? transaction.Timestamp;
+        transaction.Type = dto.Type ?? transaction.Type;
+        transaction.Description = dto.Description;
+        transaction.Amount = dto.Amount;
+        return Task.FromResult<TransactionResponseDto?>(ToDto(transaction));
     }
+
+    private static TransactionResponseDto ToDto(Transaction t) =>
+        new(t.Id, t.Timestamp, t.Type, t.Description, t.Amount);
 }
