@@ -1,3 +1,10 @@
+using BudgetApi.Models;
+
 namespace BudgetApi.Dtos.Transactions;
 
-public record CreateTransactionDto { }
+public record CreateTransactionDto(
+    DateTimeOffset? Timestamp,
+    TransactionType? Type,
+    string Description,
+    decimal Amount
+);

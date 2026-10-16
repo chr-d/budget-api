@@ -1,3 +1,14 @@
+using BudgetApi.Dtos.Transactions;
+using BudgetApi.Models;
+
 namespace BudgetApi.Dtos.Reports;
 
-public record SummaryReportResponseDto { }
+public record SummaryReportResponseDto(
+    DateOnly StartDate,
+    DateOnly EndDate,
+    TransactionType? Type,
+    decimal TotalIncome,
+    decimal TotalExpense,
+    decimal Net,
+    IReadOnlyList<TransactionResponseDto> Transactions
+);
