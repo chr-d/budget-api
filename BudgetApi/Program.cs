@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using BudgetApi.Data;
 using BudgetApi.Endpoints;
 using BudgetApi.Errors;
 using BudgetApi.Services;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +12,12 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter())
 );
 
-builder.Services.AddSingleton<ITransactionService, TransactionService>();
-builder.Services.AddSingleton<IReportService, ReportService>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddOpenApi();
 
