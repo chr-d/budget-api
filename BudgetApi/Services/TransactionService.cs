@@ -107,28 +107,6 @@ public class TransactionService : ITransactionService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<IReadOnlyList<TransactionResponseDto>> GetInRangeAsync(
-        DateOnly start,
-        DateOnly end
-    )
-    {
-        var from = StartOfDay(start);
-        var to = StartOfDay(end.AddDays(1)); // Add one day to include the end date
-
-        return await _db
-            .Transactions.AsNoTracking()
-            .Where(t => t.Timestamp >= from && t.Timestamp < to)
-            .OrderBy(t => t.Timestamp)
-            .Select(t => new TransactionResponseDto(
-                t.Id,
-                t.Timestamp,
-                t.Type,
-                t.Description,
-                t.Amount
-            ))
-            .ToListAsync();
-    }
-
     public async Task<TransactionResponseDto?> UpdateAsync(Guid id, UpdateTransactionDto dto)
     {
         var transaction = await _db.Transactions.FindAsync(id);
