@@ -29,13 +29,15 @@ public class ReportService(ApplicationDbContext db) : IReportService
             query = query.Where(t => t.Type == type);
         }
 
-        var totalIncome = await query
-            .Where(t => t.Type == TransactionType.Income)
-            .SumAsync(t => t.Amount);
+        var totals = await query
+            .GroupBy(t => t.Type)
+            .Select(g => new { Type = g.Key, Total = g.Sum(t => t.Amount) })
+            .ToListAsync();
 
-        var totalExpense = await query
-            .Where(t => t.Type == TransactionType.Expense)
-            .SumAsync(t => t.Amount);
+        var totalIncome = totals.FirstOrDefault(t => t.Type == TransactionType.Income)?.Total ?? 0m;
+
+        var totalExpense =
+            totals.FirstOrDefault(t => t.Type == TransactionType.Expense)?.Total ?? 0m;
 
         IReadOnlyList<TransactionResponseDto> transactions = await query
             .OrderByDescending(t => t.Timestamp)
