@@ -11,6 +11,7 @@ public class ReportService(ApplicationDbContext db) : IReportService
     private readonly ApplicationDbContext _db = db;
 
     public async Task<SummaryReportResponseDto> GetSummaryAsync(
+        Guid userId,
         DateOnly start,
         DateOnly end,
         TransactionType? type
@@ -22,7 +23,7 @@ public class ReportService(ApplicationDbContext db) : IReportService
 
         var query = _db
             .Transactions.AsNoTracking()
-            .Where(t => t.Timestamp >= from && t.Timestamp < to);
+            .Where(t => t.UserId == userId && t.Timestamp >= from && t.Timestamp < to);
 
         if (type is not null)
         {

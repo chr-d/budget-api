@@ -14,7 +14,7 @@ public class TransactionService : ITransactionService
         _db = db;
     }
 
-    public async Task<TransactionResponseDto> CreateAsync(CreateTransactionDto dto)
+    public async Task<TransactionResponseDto> CreateAsync(Guid userId, CreateTransactionDto dto)
     {
         var transaction = new Transaction
         {
@@ -23,6 +23,7 @@ public class TransactionService : ITransactionService
             Type = dto.Type!.Value,
             Description = dto.Description,
             Amount = dto.Amount,
+            UserId = userId,
         };
 
         _db.Transactions.Add(transaction);
@@ -30,9 +31,11 @@ public class TransactionService : ITransactionService
         return await Task.FromResult(ToDto(transaction));
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid userId, Guid id)
     {
-        var transaction = await _db.Transactions.FindAsync(id);
+        var transaction = await _db.Transactions.FirstOrDefaultAsync(t =>
+            t.Id == id && t.UserId == userId
+        );
         if (transaction is null)
         {
             return false;
@@ -43,9 +46,12 @@ public class TransactionService : ITransactionService
         return true;
     }
 
-    public async Task<IReadOnlyList<TransactionResponseDto>> GetAllAsync(TransactionFilter filter)
+    public async Task<IReadOnlyList<TransactionResponseDto>> GetAllAsync(
+        Guid userId,
+        TransactionFilter filter
+    )
     {
-        var query = _db.Transactions.AsNoTracking();
+        var query = _db.Transactions.AsNoTracking().Where(t => t.UserId == userId);
 
         if (filter.Type.HasValue)
         {
@@ -92,11 +98,11 @@ public class TransactionService : ITransactionService
             .ToListAsync();
     }
 
-    public async Task<TransactionResponseDto?> GetByIdAsync(Guid id)
+    public async Task<TransactionResponseDto?> GetByIdAsync(Guid userId, Guid id)
     {
         return await _db
             .Transactions.AsNoTracking()
-            .Where(t => t.Id == id)
+            .Where(t => t.Id == id && t.UserId == userId)
             .Select(t => new TransactionResponseDto(
                 t.Id,
                 t.Timestamp,
@@ -107,9 +113,15 @@ public class TransactionService : ITransactionService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<TransactionResponseDto?> UpdateAsync(Guid id, UpdateTransactionDto dto)
+    public async Task<TransactionResponseDto?> UpdateAsync(
+        Guid userId,
+        Guid id,
+        UpdateTransactionDto dto
+    )
     {
-        var transaction = await _db.Transactions.FindAsync(id);
+        var transaction = await _db.Transactions.FirstOrDefaultAsync(t =>
+            t.Id == id && t.UserId == userId
+        );
         if (transaction is null)
         {
             return null;
