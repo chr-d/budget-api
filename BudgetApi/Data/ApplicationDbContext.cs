@@ -1,10 +1,12 @@
 using BudgetApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BudgetApi.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
@@ -24,6 +26,11 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<User>(user =>
+        {
+            user.Property(u => u.Name).HasMaxLength(100).IsRequired();
+        });
+
         modelBuilder.Entity<Transaction>(transaction =>
         {
             transaction.Property(t => t.Description).HasMaxLength(200).IsRequired();
@@ -35,8 +42,15 @@ public class ApplicationDbContext : DbContext
             // Store the enum as its name ("Income", "Expense") instead of a number.
             transaction.Property(t => t.Type).HasConversion<string>().HasMaxLength(20);
 
-            // Reports filter by date, so an index on Timestamp speeds them up.
-            transaction.HasIndex(t => t.Timestamp);
+            // Every query filters by user and most by date, so index both together.
+            transaction.HasIndex(t => new { t.UserId, t.Timestamp });
+
+            // One user has many transactions. Deleting a user deletes their transactions.
+            transaction
+                .HasOne(t => t.User)
+                .WithMany(u => u.Transactions)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
