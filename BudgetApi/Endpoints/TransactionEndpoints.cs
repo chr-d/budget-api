@@ -9,6 +9,9 @@ namespace BudgetApi.Endpoints;
 
 public static class TransactionEndpoints
 {
+    // TODO: remove this when proper authentication and authorization is in place
+    private static readonly Guid _devUser = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     public static RouteGroupBuilder MapTransactionEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/transactions")
@@ -64,7 +67,7 @@ public static class TransactionEndpoints
     )
     {
         var filter = new TransactionFilter(type, from, to, search, page, pageSize);
-        return TypedResults.Ok(await transactionService.GetAllAsync(filter));
+        return TypedResults.Ok(await transactionService.GetAllAsync(_devUser, filter));
     }
 
     private static async Task<Results<Ok<TransactionResponseDto>, NotFound>> GetTransactionById(
@@ -72,7 +75,7 @@ public static class TransactionEndpoints
         ITransactionService transactionService
     )
     {
-        var transaction = await transactionService.GetByIdAsync(id);
+        var transaction = await transactionService.GetByIdAsync(_devUser, id);
         return transaction is null ? TypedResults.NotFound() : TypedResults.Ok(transaction);
     }
 
@@ -81,7 +84,7 @@ public static class TransactionEndpoints
         ITransactionService transactionService
     )
     {
-        var transaction = await transactionService.CreateAsync(dto);
+        var transaction = await transactionService.CreateAsync(_devUser, dto);
 
         //TODO: make the path dynamic
         return TypedResults.Created($"/api/transactions/{transaction.Id}", transaction);
@@ -93,7 +96,7 @@ public static class TransactionEndpoints
         ITransactionService transactionService
     )
     {
-        var transaction = await transactionService.UpdateAsync(id, dto);
+        var transaction = await transactionService.UpdateAsync(_devUser, id, dto);
         return transaction is null ? TypedResults.NotFound() : TypedResults.Ok(transaction);
     }
 
@@ -102,7 +105,7 @@ public static class TransactionEndpoints
         ITransactionService transactionService
     )
     {
-        return await transactionService.DeleteAsync(id)
+        return await transactionService.DeleteAsync(_devUser, id)
             ? TypedResults.NoContent()
             : TypedResults.NotFound();
     }

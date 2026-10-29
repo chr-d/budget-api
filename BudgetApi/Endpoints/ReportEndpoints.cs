@@ -7,6 +7,9 @@ namespace BudgetApi.Endpoints;
 
 public static class ReportEndpoints
 {
+    // TODO: remove this when proper authentication and authorization is in place
+    private static readonly Guid _devUser = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     public static RouteGroupBuilder MapReportEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/reports").WithTags("Reports");
@@ -40,6 +43,6 @@ public static class ReportEndpoints
             );
         }
 
-        return TypedResults.Ok(await reportService.GetSummaryAsync(start, end, type));
+        return TypedResults.Ok(await reportService.GetSummaryAsync(_devUser, start, end, type));
     }
 }
