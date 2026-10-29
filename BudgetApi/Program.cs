@@ -50,6 +50,6 @@ app.UseStatusCodePages();
 var api = app.MapGroup("/api");
 api.MapTransactionEndpoints();
 api.MapReportEndpoints();
-app.MapAuthEndpoints();
+api.MapAuthEndpoints();
 
 app.Run();

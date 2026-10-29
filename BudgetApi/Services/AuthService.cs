@@ -19,6 +19,7 @@ public class AuthService : IAuthService
         var user = new User
         {
             Name = dto.Name,
+            UserName = dto.Email,
             Email = dto.Email,
             CreatedAt = DateTimeOffset.UtcNow,
         };

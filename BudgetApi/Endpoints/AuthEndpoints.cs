@@ -14,7 +14,7 @@ public static class AuthEndpoints
         group
             .MapPost("/register", Register)
             .WithName("Register")
-            .WithSummary("Create a user account with a password");
+            .WithSummary("Register a new user");
 
         return group;
     }
