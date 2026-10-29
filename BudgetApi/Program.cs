@@ -28,6 +28,7 @@ builder
 
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddOpenApi();
 
