@@ -2,7 +2,9 @@ using System.Text.Json.Serialization;
 using BudgetApi.Data;
 using BudgetApi.Endpoints;
 using BudgetApi.Errors;
+using BudgetApi.Models;
 using BudgetApi.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -15,6 +17,14 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder
+    .Services.AddIdentityCore<User>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IReportService, ReportService>();
